@@ -1,0 +1,45 @@
+---
+title: 'Problem Set 0: Bias in Self-reported Turnout'
+author: "Shuai"
+date: '2022-05-14'
+output:
+  pdf_document: default
+  html_document: default
+---
+
+```{r}
+turnout <- read.csv("turnout.csv")
+
+t_dim <- dim(turnout)
+year_range <- range(turnout$year)
+```
+
+Q1: How many observations are there? What is the range of years covered in this data set?
+
+A1: There are `r length(names(turnout))` observations. The range of years covered in this data set is from `r min(turnout$year)` to `r max(turnout$year)`.
+
+```{r}
+turnout$VAPtr <- turnout$total / (turnout$VAP + turnout$overseas) * 100
+turnout$VEPtr <- turnout$total / turnout$VEP * 100
+
+knitr::kable(turnout[,c("year", "VAPtr", "VEPtr")])
+```
+
+Q2: What difference do you observe between the different measures of turnout?
+
+A2: `r c(turnout$VEPtr - turnout$VAPtr)`
+
+```{r}
+turnout$diffVAP <- turnout$ANES - turnout$VAPtr
+turnout$diffVEP <- turnout$ANES - turnout$VEPtr
+
+turnout[,c("diffVAP", "diffVEP")]
+```
+
+Q3: How big are each of these differences on average? What is the range of the differences?
+
+A3:
+
+- average of diffVAP: `r mean(turnout$diffVAP)`, average of diffVEP: `r mean(turnout$diffVEP)`
+- range of diffVAP: (`r range(turnout$diffVAP)`)
+- range of diffVEP: (`r range(turnout$diffVEP)`)
