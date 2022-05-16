@@ -1,0 +1,11 @@
+---
+title: 'Problem Set 1: Effect of Demographic Change on Exclusionary Attitudes'
+author: "Shuai"
+date: '2022-05-16'
+output: html_document
+---
+
+```{r}
+trains <- read.csv("") # wtf, where is the boston.csv?
+```
+

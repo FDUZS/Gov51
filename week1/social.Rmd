@@ -1,0 +1,38 @@
+---
+title: "social"
+author: "Shuai"
+date: '2022-05-15'
+output: html_document
+---
+
+```{r}
+social <- read.csv("social.csv")
+
+summary(social)
+```
+```{r}
+tapply(social$primary2006, social$messages, mean)
+```
+```{r}
+mean(social$primary2006[social$messages == "Control"])
+```
+
+```{r}
+tapply(social$primary2006, social$messages, mean) - mean(social$primary2006[social$messages == "Control"])
+```
+
+```{r}
+social$age <- 2006 - social$yearofbirth
+
+tapply(social$age, social$messages, mean)
+```
+
+```{r}
+tapply(social$primary2004, social$messages, mean)
+```
+
+```{r}
+tapply(social$hhsize, social$messages, mean)
+```
+
+
