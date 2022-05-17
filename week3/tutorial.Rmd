@@ -1,0 +1,155 @@
+---
+title: "tutorial"
+author: "Shuai"
+date: '2022-05-17'
+output: html_document
+---
+
+```{r}
+afghan <- read.csv("afghan.csv")
+
+summary(afghan$age)
+```
+
+```{r}
+summary(afghan$educ.years)
+```
+
+```{r}
+summary(afghan$employed)
+```
+
+```{r}
+summary(afghan$income)
+```
+
+```{r}
+head(afghan)
+```
+
+```{r}
+prop.table(table(ISAF = afghan$violent.exp.ISAF, Taliban = afghan$violent.exp.taliban))
+```
+
+```{r}
+head(afghan$income, n = 10)
+```
+
+```{r}
+head(is.na(afghan$income), n = 10)
+```
+
+```{r}
+sum(is.na(afghan$income))
+mean(is.na(afghan$income))
+```
+
+```{r}
+x <- c(1, 2, 3, NA)
+mean(x)
+```
+
+```{r}
+mean(x, na.rm = TRUE)
+```
+
+```{r}
+prop.table(table(ISAF = afghan$violent.exp.ISAF, Taliban = afghan$violent.exp.taliban, exclude = NULL))
+```
+
+```{r}
+nrow(afghan)
+```
+
+```{r}
+afghan.sub <- na.omit(afghan)
+nrow(afghan.sub)
+```
+
+```{r}
+ISAF.ptable <- prop.table(table(ISAF = afghan$violent.exp.ISAF, exclude = NULL))
+ISAF.ptable
+```
+
+```{r}
+barplot(ISAF.ptable,
+        names.arg = c("No harm", "Harm", "Nonresponse"),
+        main = "Civilian victimization by the ISAF",
+        xlab = "Response category",
+        ylab = "Proportion of the respondents",
+        ylim = c(0, 0.7))
+```
+
+```{r}
+Taliban.ptable <- prop.table(table(Taliban = afghan$violent.exp.taliban, exclude = NULL))
+```
+
+```{r}
+barplot(Taliban.ptable,
+        names.arg = c("No harm", "Harm", "Nonresponse"),
+        main = "Civilian victimization by the Taliban",
+        xlab = "Response category",
+        ylab = "Proportion of the respondents",
+        ylim = c(0, 0.7))
+```
+
+```{r}
+hist(afghan$age, freq = FALSE, ylim = c(0, 0.04), xlab = "Age", main = "Distribution of respondent's age")
+```
+
+```{r}
+hist(afghan$educ.years,
+     freq = FALSE,
+     breaks = seq(from = -0.5, to = 18.5, by = 1),
+     xlab = "Years of education",
+     main = "Distribution of respondent's education")
+text(x = 3, y = 0.5, "median")
+abline(v = median(afghan$educ.years))
+lines(x = rep(median(afghan$educ.years), 2), y = c(0, 0.5))
+```
+
+```{r}
+boxplot(afghan$age, main = "Distribution of age", ylab = "Age", ylim = c(10, 80))
+```
+
+```{r}
+boxplot(educ.years ~ province, data = afghan, main = "Education by province", ylab = "Years of education")
+```
+
+```{r}
+tapply(afghan$violent.exp.taliban, afghan$province, mean, na.rm = TRUE)
+```
+
+```{r}
+tapply(afghan$violent.exp.ISAF, afghan$province, mean, na.rm = TRUE)
+```
+
+```{r}
+pdf(file = "educ.pdf", height = 5, width = 5)
+boxplot(educ.years ~ province, data = afghan, main = "Education by province", ylab = "Years of education")
+dev.off()
+```
+
+```{r}
+pdf(file = "hist.pdf",
+    height = 4,
+    width = 8)
+
+par(mfrow = c(1, 2), cex = 0.8)
+
+hist(afghan$age,
+     freq = FALSE,
+     xlab = "Age",
+     ylim = c(0, 0.04),
+     main = "Distribution of respondent's age")
+hist(afghan$educ.years,
+     freq = FALSE,
+     breaks = seq(from = -0.5, to = 18.5, by = 1),
+     xlab = "Years of education",
+     xlim = c(0, 20),
+     main = "Distribution of respondent's education")
+
+dev.off()
+```
+
+
