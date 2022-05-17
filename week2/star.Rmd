@@ -1,0 +1,13 @@
+---
+title: "EFFICACY OF SMALL CLASS SIZE IN EARLY EDUCATION"
+author: "Shuai"
+date: '2022-05-17'
+output: html_document
+---
+
+```{r}
+star <- read.csv("STAR.csv")
+head(star)
+```
+
+
