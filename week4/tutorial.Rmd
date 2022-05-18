@@ -1,0 +1,37 @@
+---
+title: "tutorial"
+author: "Shuai"
+date: '2022-05-17'
+output: html_document
+---
+
+```{r}
+afghan.village <- read.csv("afghan-village.csv")
+```
+
+```{r}
+head(afghan.village)
+```
+
+```{r}
+boxplot(altitude ~ village.surveyed, data = afghan.village, ylab = "Altitude (meters)", names = c("Nonsampled", "Sampled"))
+boxplot(log(population) ~ village.surveyed, data = afghan.village, ylab = "log population", names = c("Nonsampled", "Sampled"))
+```
+
+```{r}
+tapply(is.na(afghan$violent.exp.taliban), afghan$province, mean)
+```
+
+```{r}
+tapply(is.na(afghan$violent.exp.ISAF), afghan$province, mean)
+```
+
+```{r}
+mean(afghan$list.response[afghan$list.group == "ISAF"]) - mean(afghan$list.response[afghan$list.group == "control"])
+```
+
+```{r}
+table(response = afghan$list.response, group = afghan$list.group)
+```
+
+

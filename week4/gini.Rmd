@@ -1,0 +1,36 @@
+---
+title: "Gini"
+author: "Shuai"
+date: '2022-05-18'
+output: html_document
+---
+
+```{r}
+gini <- read.csv("USGini.csv")
+head(gini)
+```
+
+```{r}
+plot(seq(from = 1947.5, to = 2011.5, by = 2),
+     rep.median - dem.median,
+     xlab = "Year",
+     ylab = "Republican median -\n Democratic median",
+     main = "Political polarization")
+plot(gini$year, gini$gini, ylim = c(0.35, 0.45), xlab = "Year", ylab = "Gini coefficient", main = "Income inequality")
+```
+
+```{r}
+cor(gini$gini[seq(from = 2, to = nrow(gini), by = 2)], rep.median - dem.median)
+```
+
+```{r}
+hist(dem112$dwnom2, freq = FALSE, main = "Democrats", xlim = c(-1.5, 1.5), ylim = c(0, 1.75), xlab = "Racial liberalism/conservatism dimension")
+hist(rep112$dwnom2, freq = FALSE, main = "Republicans", xlim = c(-1.5, 1.5), ylim = c(0, 1.75), xlab = "Racial liberalism/conservatism dimension")
+```
+
+```{r}
+qqplot(dem112$dwnom2, rep112$dwnom2, xlab = "Democrats", ylab = "Republicans", xlim = c(-1.5, 1.5), ylim = c(-1.5, 1.5), main = "Racial liberalism/conservatism dimension")
+abline(0, 1)
+```
+
+

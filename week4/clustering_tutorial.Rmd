@@ -1,0 +1,127 @@
+---
+title: "clustering_tutorial"
+author: "Shuai"
+date: '2022-05-18'
+output: html_document
+---
+
+```{r}
+x <- matrix(1:12, nrow = 3, ncol = 4, byrow = TRUE)
+rownames(x) <- c("a", "b", "c")
+colnames(x) <- c("d", "e", "f", "g")
+dim(x)
+```
+
+```{r}
+x
+```
+
+```{r}
+y <- data.frame(y1 = as.factor(c("a", "b", "c")), y2 = c(0.1, 0.2, 0.3))
+class(y$y1)
+```
+
+```{r}
+class(y$y2)
+```
+
+```{r}
+z <- as.matrix(y)
+z
+```
+
+```{r}
+colSums(x)
+```
+
+```{r}
+rowMeans(x)
+```
+
+```{r}
+apply(x, 2, sum)
+```
+
+```{r}
+apply(x, 1, mean)
+```
+
+```{r}
+apply(x, 1, sd)
+```
+
+```{r}
+x <- list(y1 = 1:10,
+          y2 = c("hi", "hello", "hey"),
+          y3 = data.frame(z1 = 1:3, z2 = c("good", "bad", "ugly")))
+
+x$y1
+```
+
+```{r}
+x[[2]]
+```
+
+```{r}
+x[["y3"]]
+```
+
+```{r}
+names(x)
+length(x)
+```
+
+```{r}
+dwnom80 <- cbind(congress$dwnom1[congress$congress == 80],
+                 congress$dwnom2[congress$congress == 80])
+dwnom112 <- cbind(congress$dwnom1[congress$congress == 112],
+                  congress$dwnom2[congress$congress == 112])
+```
+
+```{r}
+k80two.out <- kmeans(dwnom80, centers = 2, nstart = 5)
+k112two.out <- kmeans(dwnom112, centers = 2, nstart = 5)
+```
+
+```{r}
+names(k80two.out)
+```
+
+```{r}
+k80two.out$centers
+```
+
+```{r}
+k112two.out$centers
+```
+
+```{r}
+table(party = congress$party[congress$congress == 80],
+      cluster = k80two.out$cluster)
+```
+
+```{r}
+table(party = congress$party[congress$congress == 112],
+      cluster = k112two.out$cluster)
+```
+
+```{r}
+k80four.out <- kmeans(dwnom80, centers = 4, nstart = 5)
+k112four.out <- kmeans(dwnom112, centers = 4, nstart = 5)
+```
+
+```{r}
+plot(dwnom80, col = k80four.out$cluster + 1, xlab = xlab, ylab = ylab, xlim = lim, ylim = lim, main = "80th Congress")
+points(k80four.out$centers, pch = 8, cex = 2)
+```
+
+```{r}
+plot(dwnom112, col = k112four.out$cluster + 1, xlab = xlab, ylab = ylab, xlim = lim, ylim = lim, main = "112th Congress")
+points(k112four.out$centers, pch = 8, cex = 2)
+```
+
+```{r}
+palette()
+```
+
+

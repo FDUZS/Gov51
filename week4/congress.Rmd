@@ -1,0 +1,58 @@
+---
+title: "congress"
+author: "Shuai"
+date: '2022-05-18'
+output: html_document
+---
+
+```{r}
+congress <- read.csv("congress.csv")
+```
+
+```{r}
+head(congress)
+```
+
+```{r}
+rep <- subset(congress, subset = (party == "Republican"))
+dem <- congress[congress$party == "Democrat",]
+```
+
+```{r}
+rep80 <- subset(rep, subset = (congress == 80))
+dem80 <- subset(dem, subset = (congress == 80))
+rep112 <- subset(rep, subset = (congress == 112))
+dem112 <- subset(dem, subset = (congress == 112))
+```
+
+```{r}
+xlab <- "Economic liberalism/conservatism"
+ylab <- "Racial liberalism/conservatism"
+lim <- c(-1.5, 1.5)
+```
+
+```{r}
+plot(dem80$dwnom1, dem80$dwnom2, pch = 16, col = "blue", xlim = lim, ylim = lim, xlab = xlab, ylab = ylab, main = "80th Congress")
+points(rep80$dwnom1, rep80$dwnom2, pch = 17, col = "red")
+text(-0.75, 1, "Democrats")
+text(1, -1, "Republicans")
+```
+
+```{r}
+plot(dem112$dwnom1, dem112$dwnom2, pch = 16, col = "blue", xlim = lim, ylim = lim, xlab = xlab, ylab = ylab, main = "112th Congress")
+points(rep112$dwnom1, rep112$dwnom2, pch = 17, col = "red")
+```
+
+```{r}
+dem.median <- tapply(dem$dwnom1, dem$congress, median)
+rep.median <- tapply(rep$dwnom1, rep$congress, median)
+```
+
+```{r}
+plot(names(dem.median), dem.median, col = "blue", type = "l", xlim = c(80, 115), ylim = c(-1, 1), xlab = "Congress", ylab = "DW-NOMINATE score (first dimension)")
+lines(names(rep.median), rep.median, col = "red")
+text(110, -0.6, "Democratic\n Party")
+text(110, 0.85, "Republican\n Party")
+```
+
+
