@@ -1,0 +1,75 @@
+---
+title: "RD_design"
+author: "Shuai"
+date: '2022-05-20'
+output: html_document
+---
+
+```{r}
+MPs <- read.csv("MPs.csv")
+MPs.labour <- subset(MPs, subset = (party == "labour"))
+Mps.tory <- subset(MPs, subset = (party == "tory"))
+```
+
+```{r}
+labour.fit1 <- lm(ln.net ~ margin, data = MPs.labour[MPs.labour$margin < 0,])
+labour.fit2 <- lm(ln.net ~ margin, data = MPs.labour[MPs.labour$margin > 0,])
+```
+
+```{r}
+tory.fit1 <- lm(ln.net ~ margin, data = Mps.tory[Mps.tory$margin < 0,])
+tory.fit2 <- lm(ln.net ~ margin, data = Mps.tory[Mps.tory$margin > 0,])
+```
+
+```{r}
+y1l.range <- c(min(MPs.labour$margin), 0)
+y2l.range <- c(0, max(MPs.labour$margin))
+
+y1.labour <- predict(labour.fit1, newdata = data.frame(margin = y1l.range))
+y2.labour <- predict(labour.fit2, newdata = data.frame(margin = y2l.range))
+```
+
+```{r}
+y1t.range <- c(min(Mps.tory$margin), 0)
+y2t.range <- c(0, max(Mps.tory$margin))
+
+y1.tory <- predict(tory.fit1, newdata = data.frame(margin = y1t.range))
+y2.tory <- predict(tory.fit2, newdata = data.frame(margin = y2t.range))
+```
+
+```{r}
+plot(MPs.labour$margin, MPs.labour$ln.net, main = "Labour", xlim = c(-0.5, 0.5), ylim = c(6, 18), xlab = "Margin of victory", ylab = "log net wealth at death")
+abline(v = 0, lty = "dashed")
+lines(y1l.range, y1.labour, col = "blue")
+lines(y2l.range, y2.labour, col = "blue")
+```
+
+```{r}
+plot(Mps.tory$margin, Mps.tory$ln.net, main = "Tory", xlim = c(-0.5, 0.5), ylim = c(6, 18), xlab = "Margin of victory", ylab = "log net wealth at death")
+abline(v = 0, lty = "dashed")
+lines(y1t.range, y1.tory, col = "blue")
+lines(y2t.range, y2.tory, col = "blue")
+```
+
+```{r}
+tory.MP <- exp(y2.tory[1])
+tory.MP
+```
+
+```{r}
+tory.nonMP <- exp(y1.tory[2])
+tory.nonMP
+```
+
+```{r}
+tory.MP - tory.nonMP
+```
+
+```{r}
+tory.fit3 <- lm(margin.pre ~ margin, data = Mps.tory[Mps.tory$margin < 0,])
+tory.fit4 <- lm(margin.pre ~ margin, data = Mps.tory[Mps.tory$margin > 0,])
+
+coef(tory.fit4)[1] - coef(tory.fit3)[1]
+```
+
+

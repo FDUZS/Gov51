@@ -1,0 +1,181 @@
+---
+title: "tutorial"
+author: "Shuai"
+date: '2022-05-20'
+output: html_document
+---
+
+```{r}
+women <- read.csv("women.csv")
+head(women)
+```
+
+```{r}
+mean(women$female[women$reserved == 1])
+```
+
+```{r}
+mean(women$female[women$reserved == 0])
+```
+
+```{r}
+mean(women$water[women$reserved == 1]) - mean(women$water[women$reserved == 0])
+```
+
+```{r}
+mean(women$irrigation[women$reserved == 1]) - mean(women$irrigation[women$reserved == 0])
+```
+
+```{r}
+lm(water ~ reserved, data = women)
+```
+
+```{r}
+lm(irrigation ~ reserved, data = women)
+```
+
+```{r}
+lm(water ~ reserved, data = women)
+```
+
+```{r}
+lm(irrigation ~ reserved, data = women)
+```
+
+```{r}
+social <- read.csv("social.csv")
+head(social)
+```
+
+```{r}
+levels(social$messages)
+```
+
+```{r}
+fit <- lm(primary2006 ~ messages, data = social)
+fit
+```
+
+```{r}
+social$Control <- ifelse(social$messages == "Control", 1, 0)
+social$Hawthorne <- ifelse(social$messages == "Hawthorne", 1, 0)
+social$Neighbors <- ifelse(social$messages == "Neighbors", 1, 0)
+```
+
+```{r}
+lm(primary2006 ~ Control + Hawthorne + Neighbors, data = social)
+```
+
+```{r}
+unique.messages <- data.frame(messages = unique(social$messages))
+unique.messages
+```
+
+```{r}
+predict(fit, newdata = unique.messages)
+```
+
+```{r}
+tapply(social$primary2006, social$messages, mean)
+```
+
+```{r}
+fit.noint <- lm(primary2006 ~ -1 + messages, data = social)
+fit.noint
+```
+
+```{r}
+coef(fit)["messagesNeighbors"] - coef(fit)["messagesControl"]
+```
+
+```{r}
+mean(social$primary2006[social$messages == "Neighbors"]) - mean(social$primary2006[social$messages == "Control"])
+```
+
+```{r}
+adjR2 <- function(fit) {
+  resid <- resid(fit)
+  y <- fitted(fit) + resid
+  n <- length(y)
+  TSS.adj <- sum(((y - mean(y))^2) / (n - 1))
+  SSR.adj <- sum(resid^2) / (n - length(coef(fit)))
+  R2.adj <- 1 - SSR.adj / TSS.adj
+  return(R2.adj)
+}
+
+adjR2(fit)
+```
+
+```{r}
+R2(fit)
+```
+
+```{r}
+fitsummary <- summary(fit)
+fitsummary$adj.r.squared
+```
+
+```{r}
+social.voter <- subset(social, primary2004 == 1)
+ate.voter <- mean(social.voter$primary2006[social.voter$messages == "Neighbors"]) - mean(social.voter$primary2006[social.voter$messages == "Control"])
+ate.voter
+```
+
+```{r}
+social.nonvoter <- subset(social, primary2004 == 0)
+ate.nonvoter <- mean(social.nonvoter$primary2006[social.nonvoter$messages == "Neighbors"]) - mean(social.nonvoter$primary2006[social.nonvoter$messages == "Control"])
+ate.nonvoter
+```
+
+```{r}
+ate.voter - ate.nonvoter
+```
+
+```{r}
+social.neighbor <- subset(social, (messages == "Control") | (messages == "Neighbors"))
+fit.int <- lm(primary2006 ~ primary2004 + messages + primary2004:messages, data = social.neighbor)
+fit.int
+```
+
+```{r}
+lm(primary2006 ~ primary2004 * messages, data = social.neighbor)
+```
+
+```{r}
+social.neighbor$age <- 2008 - social.neighbor$yearofbirth
+
+summary(social.neighbor$age)
+```
+
+```{r}
+fit.age <- lm(primary2006 ~ age * messages, data = social.neighbor)
+fit.age
+```
+
+```{r}
+age.neighbor <- data.frame(age = seq(from = 25, to = 85, by = 20), messages = "Neighbors")
+age.control <- data.frame(age = seq(from = 25, to = 85, by = 20), messages = "Control")
+ate.age <- predict(fit.age, newdata = age.neighbor) - predict(fit.age, newdata = age.control)
+ate.age
+```
+
+```{r}
+fit.age2 <- lm(primary2006 ~ age + I(age^2) + messages + age:messages + I(age^2):messages, data = social.neighbor)
+fit.age2
+```
+
+```{r}
+yT.hat <- predict(fit.age2, newdata = data.frame(age = 25:85, messages = "Neighbors"))
+yC.hat <- predict(fit.age2, newdata = data.frame(age = 25:85, messages = "Control"))
+```
+
+```{r}
+plot(x = 25:85, y = yT.hat, type = "l", xlim = c(20, 90), ylim = c(0, 0.5), xlab = "Age", ylab = "Predicted turnout rate")
+lines(x = 25:85, y = yC.hat, lty = "dashed")
+text(40, 0.45, "Neighbors condition")
+text(45, 0.15, "Control condition")
+
+plot(x = 25:85, y = yT.hat - yC.hat, type = "l", xlim = c(20, 90), ylim = c(0, 0.1), xlab = "Age", ylab = "Estimated average\n treatment effect")
+```
+
+
