@@ -1,0 +1,136 @@
+---
+title: "tutorial"
+author: "Shuai"
+date: '2022-05-20'
+output: html_document
+---
+
+```{r}
+pres12 <- read.csv("pres12.csv")
+```
+
+```{r}
+head(pres08)
+```
+
+```{r}
+head(pres12)
+```
+
+```{r}
+pres <- merge(pres08, pres12, by = "state")
+summary(pres)
+```
+
+```{r}
+pres1 <- cbind(pres08, pres12)
+summary(pres1)
+```
+
+```{r}
+pres1[8:9,]
+```
+
+```{r}
+pres[8:9,]
+```
+
+```{r}
+pres$Obama2008.z <- scale(pres$Obama.x)
+pres$Obama2012.z <- scale(pres$Obama.y)
+```
+
+```{r}
+fit1 <- lm(Obama2012.z ~ Obama2008.z, data = pres)
+fit1
+```
+
+```{r}
+fit1 <- lm(Obama2012.z ~ -1 + Obama2008.z, data = pres)
+fit1
+```
+
+```{r}
+plot(pres$Obama2008.z, pres$Obama2012.z, xlim = c(-4, 4), ylim = c(-4, 4), xlab = "Obama's standardized vote share in 2008", ylab = "Obama's standardized vote share in 2012")
+abline(fit1)
+```
+
+```{r}
+mean((pres$Obama2012.z > pres$Obama2008.z)[pres$Obama2008.z <= quantile(pres$Obama2008.z, 0.25)])
+```
+
+```{r}
+mean((pres$Obama2012.z > pres$Obama2008.z)[pres$Obama2008.z >= quantile(pres$Obama2008.z, 0.75)])
+```
+
+```{r}
+florida <- read.csv("florida.csv")
+```
+
+```{r}
+fit2 <- lm(Buchanan00 ~ Perot96, data = florida)
+fit2
+```
+
+```{r}
+TSS2 <- sum((florida$Buchanan00 - mean(florida$Buchanan00))^2)
+SSR2 <- sum(resid(fit2)^2)
+(TSS2 - SSR2) / TSS2
+```
+
+```{r}
+R2 <- function(fit) {
+  resid <- resid(fit)
+  y <- fitted(fit) + resid
+  TSS <- sum((y - mean(y))^2)
+  SSR <- sum(resid^2)
+  R2 <- (TSS - SSR) / TSS
+  return(R2)
+}
+
+R2(fit2)
+```
+
+```{r}
+fit2summary <- summary(fit2)
+fit2summary$r.squared
+```
+
+```{r}
+R2(fit1)
+```
+
+```{r}
+plot(fitted(fit2), resid(fit2), xlim = c(0, 1500), ylim = c(-750, 2500), xlab = "Fitted values", ylab = "Residuals")
+abline(h = 0)
+```
+
+```{r}
+florida$county[resid(fit2) == max(resid(fit2))]
+```
+
+```{r}
+florida.pb <- subset(florida, subset = (county != "PalmBeach"))
+fit3 <- lm(Buchanan00 ~ Perot96, data = florida.pb)
+fit3
+```
+
+```{r}
+R2(fit3)
+```
+
+```{r}
+plot(fitted(fit3), resid(fit3), xlim = c(0, 1500), ylim = c(-750, 2500), xlab = "Fitted values", ylab = "Residuals", main = "Residual plot without Palm Beach")
+abline(h = 0)
+```
+
+```{r}
+plot(florida$Perot96, florida$Buchanan00, xlab = "Perot's votes in 1996", ylab = "Buchanan's votes in 2000")
+abline(fit2, lty = "dashed")
+abline(fit3)
+text(30000, 3250, "Palm Beach")
+text(30000, 1500, "regression\n with Palm Beach")
+text(30000, 400, "regression\n without Palm Beachh")
+```
+
+
