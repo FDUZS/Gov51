@@ -1,0 +1,176 @@
+---
+title: "chapter5_discovery"
+author: "Shuai"
+date: '2022-05-21'
+output: html_document
+---
+
+```{r}
+library(tm, SnowballC)
+```
+
+```{r}
+corpus.raw <- Corpus(DirSource(directory = "federalist", pattern = "fp"))
+corpus.raw
+```
+
+```{r}
+corpus.prep <- tm_map(corpus.raw, content_transformer(tolower))
+corpus.prep <- tm_map(corpus.prep, stripWhitespace)
+corpus.prep <- tm_map(corpus.prep, removePunctuation)
+corpus.prep <- tm_map(corpus.prep, removeNumbers)
+```
+
+```{r}
+head(stopwords("english"))
+```
+
+```{r}
+corpus <- tm_map(corpus.prep, removeWords, stopwords("english"))
+corpus <- tm_map(corpus, stemDocument)
+```
+
+```{r}
+content(corpus[[10]])
+```
+
+```{r}
+dtm <- DocumentTermMatrix(corpus)
+dtm
+```
+
+```{r}
+inspect(dtm[1:5, 1:8])
+```
+
+```{r}
+dtm.mat <- as.matrix(dtm)
+```
+
+```{r}
+library(wordcloud)
+```
+
+```{r}
+wordcloud(colnames(dtm.mat), dtm.mat[12,], max.words = 20)
+wordcloud(colnames(dtm.mat), dtm.mat[24,], max.words = 20)
+```
+
+```{r}
+stemCompletion(c("revenu", "commerc", "peac", "army"), corpus.prep)
+```
+
+```{r}
+dtm.tfidf <- weightTfIdf(dtm)
+```
+
+```{r}
+dtm.tfidf.mat <- as.matrix(dtm.tfidf)
+head(sort(dtm.tfidf.mat[12,], decreasing = TRUE), n = 10)
+```
+
+```{r}
+head(sort(dtm.tfidf.mat[24,], decreasing = TRUE), n = 10)
+```
+
+```{r}
+k <- 4
+hamilton <- c(1, 6:9, 11:13, 15:17, 21:36, 59:61, 65:85)
+dtm.tfidf.hamilton <- dtm.tfidf.mat[hamilton,]
+
+km.out <- kmeans(dtm.tfidf.hamilton, centers = k)
+km.out$iter
+```
+
+```{r}
+colnames(km.out$centers) <- colnames(dtm.tfidf.hamilton)
+
+for (i in 1:k) {
+  cat("CLUSTER", i, "\n")
+  cat("Top 10 words:\n")
+  print(head(sort(km.out$centers[i,], decreasing = TRUE), n = 10))
+  cat("\n")
+  cat("Federalist Papers classified:\n")
+  print(rownames(dtm.tfidf.hamilton)[km.out$cluster == i])
+  cat("\n")
+}
+```
+
+```{r}
+dtm1 <- as.matrix(DocumentTermMatrix(corpus.prep))
+tfm <- dtm1 / rowSums(dtm1) * 1000
+```
+
+```{r}
+words <- c("although", "always", "commonly", "consequently", "considerable", "enough", "there", "upon", "while", "whilst")
+tfm <- tfm[,words]
+```
+
+```{r}
+madison <- c(10, 14, 37:48, 58)
+```
+
+```{r}
+tfm.ave <- rbind(colSums(tfm[hamilton,]) / length(hamilton), colSums(tfm[madison,]) / length(madison))
+tfm.ave
+```
+
+```{r}
+author <- rep(NA, nrow(dtm1))
+author[hamilton] <- 1
+author[madison] <- -1
+
+author.data <- data.frame(author = author[c(hamilton, madison)], tfm[c(hamilton, madison),])
+```
+
+```{r}
+hm.fit <- lm(author ~ upon + there + consequently + whilst, data = author.data)
+hm.fit
+```
+
+```{r}
+hm.fitted <- fitted(hm.fit)
+sd(hm.fitted)
+```
+
+```{r}
+mean(hm.fitted[author.data$author == 1] > 0)
+```
+
+```{r}
+mean(hm.fitted[author.data$author == -1] < 0)
+```
+
+```{r}
+n <- nrow(author.data)
+hm.classify <- rep(NA, n)
+
+for (i in 1:n) {
+  sub.fit <- lm(author ~ upon + there + consequently + whilst, data = author.data[-i,])
+  hm.classify[i] <- predict(sub.fit, newdata = author.data[i,])
+}
+```
+
+```{r}
+mean(hm.classify[author.data$author == 1] > 0)
+```
+
+```{r}
+mean(hm.classify[author.data$author == -1] < 0)
+```
+
+```{r}
+disputed <- c(49, 50:57, 62, 63)
+tf.disputed <- as.data.frame(tfm[disputed,])
+
+pred <- predict(hm.fit, newdata = tf.disputed)
+pred
+```
+
+```{r}
+plot(hamilton, hm.fitted[author.data$author == 1], pch = 15, xlim = c(1, 85), ylim = c(-2, 2), col = "red", xlab = "Federalist Papers", ylab = "Predicted values")
+abline(h = 0, lty = "dashed")
+points(madison, hm.fitted[author.data$author == -1], pch = 16, col = "blue")
+points(disputed, pred, pch = 17)
+```
+

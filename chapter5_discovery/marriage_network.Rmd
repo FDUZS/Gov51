@@ -1,0 +1,52 @@
+---
+title: "marriage_network"
+author: "Shuai"
+date: '2022-05-21'
+output: html_document
+---
+
+```{r}
+florence <- read.csv("florentine.csv", row.names = "FAMILY")
+florence <- as.matrix(florence)
+
+florence[1:5, 1:5]
+```
+
+```{r}
+rowSums(florence)
+```
+
+```{r}
+library("igraph")
+```
+
+```{r}
+florence <- graph.adjacency(florence, mode = "undirected", diag = FALSE)
+plot(florence)
+```
+
+```{r}
+degree(florence)
+```
+
+```{r}
+closeness(florence)
+```
+
+```{r}
+1 / (closeness(florence) * 15)
+```
+
+```{r}
+betweenness(florence)
+```
+
+```{r}
+plot(florence, vertex.size = closeness(florence) * 1000, main = "Closeness")
+```
+
+```{r}
+plot(florence, vertex.size = betweenness(florence), main = "Betweenness")
+```
+
+

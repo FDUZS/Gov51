@@ -1,0 +1,54 @@
+---
+title: "spatial_data"
+author: "Shuai"
+date: '2022-05-21'
+output: html_document
+---
+
+```{r}
+library(maps)
+```
+
+```{r}
+data("us.cities")
+head(us.cities)
+```
+
+```{r}
+map(database = "usa")
+capitals <- subset(us.cities, capital == 2)
+points(x = capitals$long, y = capitals$lat, col = "blue", cex = capitals$pop / 500000, pch = 19)
+title("US state capitals")
+```
+
+```{r}
+map(database = "state", regions = "California")
+```
+
+```{r}
+cal.cities <- subset(us.cities, subset = (country.etc == "CA"))
+sind <- order(cal.cities$pop, decreasing = TRUE)
+top7 <- sind[1:7]
+```
+
+```{r}
+map(database = "state", regions = "California")
+points(x = cal.cities$long[top7], y = cal.cities$lat[top7], pch = 19)
+text(x = cal.cities$long[top7] + 2.25, y = cal.cities$lat[top7], label = cal.cities$name[top7])
+title("Largest cities of California")
+```
+
+```{r}
+usa <- map(database = "usa", plot = FALSE)
+names(usa)
+```
+
+```{r}
+length(usa$x)
+```
+
+```{r}
+head(cbind(usa$x, usa$y))
+```
+
+
