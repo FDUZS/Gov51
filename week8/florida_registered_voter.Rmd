@@ -1,0 +1,129 @@
+---
+title: "florida_registered_voter"
+author: "Shuai"
+date: '2022-05-21'
+output: html_document
+---
+
+```{r}
+FLVoters <- read.csv("FLVoters.csv")
+dim(FLVoters)
+```
+
+```{r}
+FLVoters <- na.omit(FLVoters)
+dim(FLVoters)
+```
+
+```{r}
+margin.race <- prop.table(table(FLVoters$race))
+margin.race
+```
+
+```{r}
+margin.gender <- prop.table(table(FLVoters$gender))
+margin.gender
+```
+
+```{r}
+prop.table(table(FLVoters$race[FLVoters$gender == "f"]))
+```
+
+```{r}
+joint.p <- prop.table(table(race = FLVoters$race, gender = FLVoters$gender))
+joint.p
+```
+
+```{r}
+rowSums(joint.p)
+```
+
+```{r}
+colSums(joint.p)
+```
+
+```{r}
+FLVoters$age.group <- NA
+FLVoters$age.group[FLVoters$age <= 20] <- 1
+FLVoters$age.group[FLVoters$age > 20 & FLVoters$age <= 40] <- 2
+FLVoters$age.group[FLVoters$age > 40 & FLVoters$age <= 60] <- 3
+FLVoters$age.group[FLVoters$age > 60] <- 4
+```
+
+```{r}
+joint3 <- prop.table(table(race = FLVoters$race, age.group = FLVoters$age.group, gender = FLVoters$gender))
+joint3
+```
+
+```{r}
+margin.age <- prop.table(table(FLVoters$age.group))
+margin.age
+```
+
+```{r}
+joint3["black", 4, "f"] / margin.age[4]
+```
+
+```{r}
+joint2 <- prop.table(table(age.group = FLVoters$age.group, gender = FLVoters$gender))
+joint2
+```
+
+```{r}
+joint2[4, "f"]
+```
+
+```{r}
+joint3["black", 4, "f"] / joint2[4, "f"]
+```
+
+```{r}
+plot(c(margin.race * margin.gender["f"]),
+     c(joint.p[,"f"]),
+     xlim = c(0, 0.4),
+     ylim = c(0, 0.4),
+     xlab = "P(race) * P(female)",
+     ylab = "P(race and female)")
+abline(0, 1)
+```
+
+```{r}
+plot(c(joint3[, 4, "f"]),
+     margin.race * margin.age[4] * margin.gender["f"],
+     xlim = c(0, 0.3),
+     ylim = c(0, 0.3),
+     main = "Joint independence",
+     xlab = "P(race and above 60 and female)",
+     ylab = "P(race) * P(above 60) * P(female)")
+abline(0, 1)
+```
+
+```{r}
+plot(c(joint3[, 4, "f"]) / margin.gender["f"],
+     (joint.p[, "f"] / margin.gender["f"]) * (joint2[4, "f"] / margin.gender["f"]),
+     xlim = c(0, 0.3),
+     ylim = c(0, 0.3),
+     main = "Marginal independence",
+     xlab = "P(race and above 60 | female)",
+     ylab = "P(race | female) * P(above 60 | female)")
+abline(0, 1)
+```
+
+```{r}
+sims <- 1000
+doors <- c("goat", "goat", "car")
+result.switch <- result.noswitch <- rep(NA, sims)
+
+for (i in 1:sims) {
+  first <- sample(1:3, size = 1)
+  result.noswitch[i] <- doors[first]
+  remain <- doors[-first]
+  monty <- sample((1:2)[remain == "goat"], size = 1)
+  result.switch[i] <- remain[-monty]
+}
+
+mean(result.noswitch == "car")
+mean(result.switch == "car")
+```
+
+
