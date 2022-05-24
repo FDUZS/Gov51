@@ -126,4 +126,125 @@ mean(result.noswitch == "car")
 mean(result.switch == "car")
 ```
 
+```{r}
+FLVoters <- FLVoters[!is.na(match(FLVoters$surname, cnames$surname)),]
+dim(FLVoters)
+```
+
+```{r}
+whites <- subset(FLVoters, subset = (race == "white"))
+w.indx <- match(whites$surname, cnames$surname)
+head(w.indx)
+```
+
+```{r}
+vars <- c("pctwhite", "pctblack", "pctapi", "pcthispanic", "pctothers")
+mean(apply(cnames[w.indx, vars], 1, max) == cnames$pctwhite[w.indx])
+```
+
+```{r}
+blacks <- subset(FLVoters, subset = (race == "black"))
+b.indx <- match(blacks$surname, cnames$surname)
+mean(apply(cnames[b.indx, vars], 1, max) == cnames$pctblack[b.indx])
+```
+
+```{r}
+hispanics <- subset(FLVoters, subset = (race == "hispanic"))
+h.indx <- match(hispanics$surname, cnames$surname)
+mean(apply(cnames[h.indx, vars], 1, max) == cnames$pcthispanic[h.indx])
+```
+
+```{r}
+asians <- subset(FLVoters, subset = (race == "asian"))
+a.indx <- match(asians$surname, cnames$surname)
+mean(apply(cnames[a.indx, vars], 1, max) == cnames$pctapi[a.indx])
+```
+
+```{r}
+indx <- match(FLVoters$surname, cnames$surname)
+1 - mean(FLVoters$race[apply(cnames[indx, vars], 1, max) == cnames$pctwhite[indx]] == "white")
+```
+
+```{r}
+1 - mean(FLVoters$race[apply(cnames[indx, vars], 1, max) == cnames$pctblack[indx]] == "black")
+```
+
+```{r}
+1 - mean(FLVoters$race[apply(cnames[indx, vars], 1, max) == cnames$pcthispanic[indx]] == "hispanic")
+```
+
+```{r}
+1 - mean(FLVoters$race[apply(cnames[indx, vars], 1, max) == cnames$pctapi[indx]] == "asian")
+```
+
+```{r}
+FLCensus <- read.csv("FLCensusVTD.csv")
+race.prop <- apply(FLCensus[, c("white", "black", "api", "hispanic", "others")], 2, weighted.mean, weights = FLCensus$total.pop)
+race.prop
+```
+
+```{r}
+total.count <- sum(cnames$count)
+```
+
+```{r}
+cnames$name.white <- (cnames$pctwhite / 100) * (cnames$count / total.count) / race.prop["white"]
+cnames$name.black <- (cnames$pctblack / 100) * (cnames$count / total.count) / race.prop["black"]
+cnames$name.hispanic <- (cnames$pcthispanic / 100) * (cnames$count / total.count) / race.prop["hispanic"]
+cnames$name.asian <- (cnames$pctapi / 100) * (cnames$count / total.count) / race.prop["api"]
+cnames$name.others <- (cnames$pctothers / 100) * (cnames$count / total.count) / race.prop["others"]
+```
+
+```{r}
+FLVoters <- merge(x = FLVoters, y = FLCensus, by = c("county", "VTD"), all = FALSE)
+indx <- match(FLVoters$surname, cnames$surname)
+FLVoters$name.residence <- cnames$name.white[indx] * FLVoters$white + cnames$name.black[indx] * FLVoters$black + cnames$name.hispanic[indx] * FLVoters$hispanic + cnames$name.asian[indx] * FLVoters$api + cnames$name.others[indx] * FLVoters$others
+```
+
+```{r}
+FLVoters$pre.white <- cnames$name.white[indx] * FLVoters$white / FLVoters$name.residence
+FLVoters$pre.black <- cnames$name.black[indx] * FLVoters$black / FLVoters$name.residence
+FLVoters$pre.hispanic <- cnames$name.hispanic[indx] * FLVoters$hispanic / FLVoters$name.residence
+FLVoters$pre.asian <- cnames$name.asian[indx] * FLVoters$api / FLVoters$name.residence
+FLVoters$pre.others <- 1 - FLVoters$pre.white - FLVoters$pre.black - FLVoters$pre.hispanic - FLVoters$pre.asian
+```
+
+```{r}
+vars1 <- c("pre.white", "pre.black", "pre.hispanic", "pre.asian", "pre.others")
+
+whites <- subset(FLVoters, subset = (race == "white"))
+mean(apply(whites[, vars1], 1, max) == whites$pre.white)
+
+blacks <- subset(FLVoters, subset = (race == "black"))
+mean(apply(blacks[, vars1], 1, max) == blacks$pre.black)
+
+hispanics <- subset(FLVoters, subset = (race == "hispanic"))
+mean(apply(hispanics[, vars1], 1, max) == hispanics$pre.hispanic)
+
+asians <- subset(FLVoters, subset = (race == "asian"))
+mean(apply(asians[, vars1], 1, max) == asians$pre.asian)
+```
+
+```{r}
+cnames$pctblack[cnames$surname == "WHITE"]
+
+summary(FLVoters$pre.black[FLVoters$surname == "WHITE"])
+```
+
+```{r}
+1 - mean(FLVoters$race[apply(FLVoters[, vars1], 1, max) == FLVoters$pre.white] == "white")
+```
+
+```{r}
+1 - mean(FLVoters$race[apply(FLVoters[, vars1], 1, max) == FLVoters$pre.black] == "black")
+```
+
+```{r}
+1 - mean(FLVoters$race[apply(FLVoters[, vars1], 1, max) == FLVoters$pre.hispanic] == "hispanic")
+```
+
+```{r}
+1 - mean(FLVoters$race[apply(FLVoters[, vars1], 1, max) == FLVoters$pre.asian] == "asian")
+```
+
 

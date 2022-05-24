@@ -1,0 +1,26 @@
+---
+title: "predicting_race"
+author: "Shuai"
+date: '2022-05-24'
+output: html_document
+---
+
+```{r}
+cnames <- read.csv("names.csv")
+dim(cnames)
+```
+
+```{r}
+x <- c("blue", "red", "yellow")
+y <- c("orange", "blue")
+match(x, y)
+```
+
+```{r}
+match(y, x)
+```
+
+```{r}
+
+```
+
