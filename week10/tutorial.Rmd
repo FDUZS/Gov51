@@ -1,0 +1,241 @@
+---
+title: "tutorial"
+author: "Shuai"
+date: '2022-05-26'
+output: html_document
+---
+
+```{r}
+n <- 100
+mu0 <- 0
+sd0 <- 1
+mu1 <- 1
+sd1 <- 1
+```
+
+```{r}
+Y0 <- rnorm(n, mean = mu0, sd = sd0)
+Y1 <- rnorm(n, mean = mu1, sd = sd1)
+tau <- Y1 - Y0
+```
+
+```{r}
+SATE <- mean(tau)
+SATE
+```
+
+```{r}
+sims <- 5000
+diff.means <- rep(NA, sims)
+```
+
+```{r}
+for (i in 1:sims) {
+  treat <- sample(c(rep(1, n / 2), rep(0, n / 2)), size = n, replace = FALSE)
+  diff.means[i] <- mean(Y1[treat == 1]) - mean(Y0[treat == 0])
+}
+est.error <- diff.means - SATE
+summary(est.error)
+```
+
+```{r}
+PATE <- mu1 - mu0
+diff.means <- rep(NA, sims)
+
+for (i in 1:sims) {
+  Y0 <- rnorm(n, mean = mu0, sd = sd0)
+  Y1 <- rnorm(n, mean = mu1, sd = sd1)
+  treat <- sample(c(rep(1, n/2), rep(0, n/2)), size = n, replace = FALSE)
+  diff.means[i] <- mean(Y1[treat == 1]) - mean(Y0[treat == 0])
+}
+
+est.error <- diff.means - PATE
+```
+
+```{r}
+summary(est.error)
+```
+
+```{r}
+hist(diff.means, freq = FALSE, xlab = "Difference-in-means estimator", main = "Sampling distribution")
+abline(v = SATE, col = "blue")
+```
+
+```{r}
+sd(diff.means)
+```
+
+```{r}
+sqrt(mean((diff.means - SATE)^2))
+```
+
+```{r}
+sims <- 5000
+diff.means <- se <- rep(NA, sims)
+for (i in 1:sims) {
+  Y0 <- rnorm(n, mean = mu0, sd = sd0)
+  Y1 <- rnorm(n, mean = mu1, sd = sd1)
+  treat <- sample(c(rep(1, n/2), rep(0, n/2)), size = n, replace = FALSE)
+  diff.means[i] <- mean(Y1[treat == 1]) - mean(Y0[treat == 0])
+  se[i] <- sqrt(var(Y1[treat == 1]) / (n/2) + var(Y0[treat == 0]) / (n/2))
+}
+
+sd(diff.means)
+mean(se)
+```
+
+```{r}
+n <- 1000
+x.bar <- 0.6
+s.e. <- sqrt(x.bar * (1 - x.bar) / n)
+c(x.bar - qnorm(0.995) * s.e., x.bar + qnorm(0.995) * s.e.)
+```
+
+```{r}
+c(x.bar - qnorm(0.975) * s.e., x.bar + qnorm(0.975) * s.e.)
+```
+
+```{r}
+c(x.bar - qnorm(0.95) * s.e., x.bar + qnorm(0.95) * s.e.)
+```
+
+```{r}
+ci95 <- ci90 <- matrix(NA, ncol = 2, nrow = sims)
+ci95[, 1] <- diff.means - qnorm(0.975) * se
+ci95[, 2] <- diff.means + qnorm(0.975) * se
+```
+
+```{r}
+ci90[, 1] <- diff.means - qnorm(0.95) * se
+ci90[, 2] <- diff.means + qnorm(0.95) * se
+```
+
+```{r}
+mean(ci95[, 1] <= 1 & ci95[, 2] >= 1)
+```
+
+```{r}
+mean(ci90[, 1] <= 1 & ci90[, 2] >= 1)
+```
+
+```{r}
+p <- 0.6
+n <- c(10, 100, 1000)
+alpha <- 0.05
+sims <- 5000
+results <- rep(NA, length(n))
+```
+
+```{r}
+for (i in 1:length(n)) {
+  ci.results <- rep(NA, sims)
+  for (j in 1:sims) {
+    data <- rbinom(n[i], size = 1, prob = p)
+    x.bar <- mean(data)
+    s.e. <- sqrt(x.bar * (1 - x.bar) / n[i])
+    ci.lower <- x.bar - qnorm(1 - alpha / 2) * s.e.
+    ci.upper <- x.bar + qnorm(1 - alpha / 2) * s.e.
+    ci.results[j] <- (p >= ci.lower) & (p <= ci.upper)
+  }
+  results[i] <- mean(ci.results)
+}
+
+results
+```
+
+```{r}
+MoE <- c(0.01, 0.03, 0.05)
+p <- seq(from = 0.01, to = 0.99, by = 0.01)
+n <- 1.96^2 * p * (1 - p) / MoE[1]^2
+plot(p, n, ylim = c(-1000, 11000), xlab = "Population proportion", ylab = "Sample size", type = "l")
+lines(p, 1.96^2 * p * (1 - p) / MoE[2]^2, lty = "dashed")
+lines(p, 1.96^2 * p * (1 - p) / MoE[3]^2, lty = "dotted")
+text(0.5, 10000, "margin of error = 0.01")
+text(0.5, 1800, "margin of error = 0.03")
+text(0.5, -200, "margin of error = 0.05")
+```
+
+```{r}
+STAR <- read.csv("STAR.csv", header = TRUE)
+```
+
+```{r}
+hist(STAR$g4reading[STAR$classtype == 1], freq = FALSE, xlim = c(500, 900), ylim = c(0, 0.01), main = "Small class", xlab = "Fourth-grade reading test score")
+abline(v = mean(STAR$g4reading[STAR$classtype == 1], na.rm = TRUE), col = "blue")
+```
+
+```{r}
+hist(STAR$g4reading[STAR$classtype == 2], freq = FALSE, xlim = c(500, 900), ylim = c(0, 0.01), main = "Regular class", xlab = "Fourth-grade reading test score")
+abline(v = mean(STAR$g4reading[STAR$classtype == 2], na.rm = TRUE), col = "blue")
+```
+
+```{r}
+n.small <- sum(STAR$classtype == 1 & !is.na(STAR$g4reading))
+est.small <- mean(STAR$g4reading[STAR$classtype == 1], na.rm = TRUE)
+se.small <- sd(STAR$g4reading[STAR$classtype == 1], na.rm = TRUE) / sqrt(n.small)
+```
+
+```{r}
+est.small
+se.small
+```
+
+```{r}
+n.regular <- sum(STAR$classtype == 2 & !is.na(STAR$classtype) & !is.na(STAR$g4reading))
+est.regular <- mean(STAR$g4reading[STAR$classtype == 2], na.rm = TRUE)
+se.regular <- sd(STAR$g4reading[STAR$classtype == 2], na.rm = TRUE) / sqrt(n.regular)
+```
+
+```{r}
+est.regular
+se.regular
+```
+
+```{r}
+alpha <- 0.05
+ci.small <- c(est.small - qnorm(1 - alpha / 2) * se.small, est.small + qnorm(1 - alpha / 2) * se.small)
+ci.small
+```
+
+```{r}
+ci.regular <- c(est.regular - qnorm(1 - alpha / 2) * se.regular, est.regular + qnorm(1 - alpha / 2) * se.regular)
+ci.regular
+```
+
+```{r}
+ate.est <- est.small - est.regular
+ate.est
+```
+
+```{r}
+ate.se <- sqrt(se.small^2 + se.regular^2)
+ate.se
+```
+
+```{r}
+ate.ci <- c(ate.est - qnorm(1 - alpha / 2) * ate.se, ate.est + qnorm(1 - alpha / 2) * ate.se)
+ate.ci
+```
+
+```{r}
+c(est.small - qt(0.975, df = n.small - 1) * se.small, est.small + qt(0.975, df = n.small - 1) * se.small)
+```
+
+```{r}
+ci.small
+```
+
+```{r}
+c(est.regular - qt(0.975, df = n.regular - 1) * se.regular, est.regular + qt(0.975, df = n.regular - 1) * se.regular)
+```
+
+```{r}
+ci.regular
+```
+
+```{r}
+t.ci <- t.test(STAR$g4reading[STAR$classtype == 1], STAR$g4reading[STAR$classtype == 2])
+t.ci
+```
+
+
