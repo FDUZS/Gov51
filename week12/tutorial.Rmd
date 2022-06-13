@@ -1,0 +1,53 @@
+---
+title: "tutorial"
+author: "Shuai"
+date: '2022-06-13'
+output: html_document
+---
+
+```{r}
+minwage <- read.csv("minwage.csv")
+```
+
+```{r}
+minwage$fullPropBefore <- minwage$fullBefore / (minwage$fullBefore + minwage$fullAfter)
+minwage$fullPropAfter <- minwage$fullAfter / (minwage$fullBefore + minwage$fullAfter)
+```
+
+```{r}
+minwage$NJ <- ifelse(minwage$location == "PA", 0, 1)
+```
+
+```{r}
+fit.minwage <- lm(fullPropAfter ~ -1 + NJ + fullPropBefore + wageBefore + chain, data = minwage)
+fit.minwage
+```
+
+```{r}
+fit.minwage1 <- lm(fullPropAfter ~ NJ + fullPropBefore + wageBefore + chain, data = minwage)
+fit.minwage1
+```
+
+```{r}
+predict(fit.minwage, newdata = minwage[1,])
+```
+
+```{r}
+predict(fit.minwage1, newdata = minwage[1,])
+```
+
+```{r}
+women <- read.csv("women.csv")
+fit.women <- lm(water ~ reserved, data = women)
+summary(fit.women)
+```
+
+```{r}
+confint(fit.women)
+```
+
+```{r}
+summary(fit.minwage)
+```
+
+
